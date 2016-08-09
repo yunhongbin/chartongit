@@ -1,0 +1,83 @@
+<configuration scan="true" scanPeriod="30 seconds">
+	<property name="LOGHOME" value="/app/yitong/log" />
+	<conversionRule conversionWord="seqnum" converterClass="com.yt.chart.utils.SeqConvert"/>
+	<!-- 控制台-->
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>debug</level>
+		</filter>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>
+				%d{yyyy-MM-dd HH:mm:ss.SSS}|%-5p%seqnum|%m%n
+			</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${LOGHOME}/chart.log</File>
+		<append>true</append>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>debug</level>
+		</filter>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGHOME}/%d{yyyyMMdd}/chart-%i.log.gz</fileNamePattern>
+			<maxHistory>300</maxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>512MB</MaxFileSize>
+			</TimeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>
+				%d{yyyy-MM-dd HH:mm:ss.SSS}|%-5p%seqnum|%m%n
+			</pattern>
+		</encoder>
+	</appender>
+	<appender name="ROLLINGCACHE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${LOGHOME}/chart.log</File>
+		<append>true</append>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>info</level>
+		</filter>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOGHOME}/%d{yyyyMMdd}/chart-cache-%i.log.gz
+			</fileNamePattern>
+			<maxHistory>300</maxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>512MB</MaxFileSize>
+			</TimeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>
+				%d{yyyy-MM-dd HH:mm:ss.SSS}|%-5p%seqnum|%m%n
+			</pattern>
+		</encoder>
+	</appender>
+	
+	
+	
+	
+	<!--异步输出-->
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender" >
+    	<discardingThreadhold>0</discardingThreadhold>
+    	<queueSize>512</queueSize><!-- 此值影响性能,勿随意修改 -->
+    	<appender-ref ref="ROLLING" />
+    </appender>
+    <!--异步输出-->
+    <appender name="ASYNCROLLINGCACHE" class="ch.qos.logback.classic.AsyncAppender" >
+    	<discardingThreadhold>0</discardingThreadhold>
+    	<queueSize>512</queueSize><!-- 此值影响性能,勿随意修改 -->
+    	<appender-ref ref="ROLLINGCACHE" />
+    </appender>
+	<logger name="com.yt.chart" additivity="false">
+		<appender-ref ref="ROLLING" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<root level="trace">
+	   <appender-ref ref="ASYNC" />
+	</root>
+	<root level="trace">
+	   <appender-ref ref="ASYNCROLLINGCACHE" />
+	</root>
+	
+
+</configuration> 
