@@ -5,5 +5,6 @@
 <configuration>
 	<typeAliases>  
     	<typeAlias type="com.yt.chart.pojo.User" alias="User" />
+    	<typeAlias type="com.yt.chart.pojo.Menu" alias="Menu" />
 	</typeAliases>  
 </configuration>

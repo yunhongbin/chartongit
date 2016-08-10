@@ -275,10 +275,7 @@
 	                <!-- Tab panes -->
 	                <div class="tab-content">
 	                    <div role="tabpanel" class="tab-pane active" id="home">
-<!-- 	                        <button type="button" class="btn btn-default" addtabs="save" id="save" url="flot.html">
-	                            <i class="glyphicon glyphicon-floppy-disk"></i>
-	                            SAVE                            
-	                        </button> -->
+							
 	                    </div>                    
 	                </div>
 	            </div>
@@ -316,85 +313,57 @@
 			onNodeUnselected: function(event,data){
 			}
 		});
-		//<button type="button" class="btn btn-default" data-addtab="mail" url="index.html">我的邮件</button>
 		function getTree(){
+			var result;
+			var parentmids = [];
+			//ajax必须为同步的，否则菜单有可能不显示
 			$.ajax({
-				url:'',
+				url:'getMenu',
 				type:'post',
 				async:false,
 				success:function(data){
-					
+					//result typeof is object
+					result = data.result;
+					//查询结果数量
+					var resultlength = result.length;
+					//获取每条记录中的parentmid 放到  parentmids中
+					for(var i = 0;i<resultlength;i++){
+						parentmids[i] = result[i].parentmid;
+					}
+					//去重
+					parentmids = uniQueue(parentmids);
+					for (var j = 0;j<parentmids.length;j++) {
+						var parentmid = parentmids[j];
+						for(var i = 0;i<resultlength;i++){
+							if(parentmid == result[i].mid){
+								result[i].selectable = false;//添加selectable 属性 值为false
+								delete(result[i]["href"]);//删除href属性
+								result[i].state = {expanded:false}//添加state.expended属性，值为false
+								result[i].nodes = [];
+							}
+						}
+						for(var i = 0;i<resultlength;i++){
+							if(parentmid == result[i].parentmid){
+								parentobj = getparentobj(parentmid,result);
+								if(typeof(parentobj) != "undefined"){
+									parentobj.nodes.unshift(result[i]);
+								}
+							}
+						}
+					}
+					//去掉数组中非一级菜单的内容
+					var loopcount = resultlength;
+					for(var k = 0;k<loopcount;k++){
+						var mid = result[k].mid.substring(0,1);
+						if(parseInt(mid) != 1){
+							var a = result.splice(k,1);
+							loopcount = result.length;
+							k = 0;
+						}
+					}
 				}
 			});
-			var data = [{
-			    			text: '公共管理',
-			    			selectable: false,
-			    			checked: false,
-			    			state: {
-		    				    disabled: false,
-		    				    expanded: false,
-	    				  	},
-			    			nodes: [{
-			    					text: '人员管理',
-			    					selectable: false,
-			    					checked: false,
-			    					nodes: [{
-			    							text: '强制签退',
-			    							href: 'buttons.html'
-			    						},
-			    						{
-			    							text: '等等等等',
-			    							href: 'icons.html '
-			    						}
-			    					]
-			    				},
-			    				{
-			    					text: '考勤管理'
-			    				}
-			    			]
-			    		},
-			    		{
-			    			text: '各种图表',
-			    			selectable: false,
-			    			state: {
-		    				    disabled: false,
-		    				    expanded: false,
-	    				  	},
-			    			nodes: [{
-		    					text: '人员管理',
-		    					selectable: false,
-		    					checked: false,
-		    					nodes: [{
-		    							text: '强制签退',
-		    							href: 'buttons.html'
-		    						},
-		    						{
-		    							text: '等等等等',
-		    							href: 'icons.html '
-		    						}
-		    					]
-		    				},
-		    				{
-		    					text: '考勤管理',
-		    					href: 'flot.html',
-		    				}
-		    			]
-			    			
-			    		},
-			    		{
-			    			text: '表单',
-			    			href: 'forms.html'
-			    		},
-			    		{
-			    			text: '表格',
-			    			href: 'grid.html'
-			    		},
-			    		{
-			    			text: '另外的一些图表',
-			    			href: 'morris.html'
-			    		}
-			    	];
-			return data
+			return result
 		}
 	    $(function(){
 	        $('#tabs').addtabs({monitor:'.topbar'});
@@ -405,6 +374,27 @@
 	               title: data.text,
 	               url: data.href,
 	            })
+	    }
+	    function uniQueue(array){
+	    	var arr=[]; 
+	    	var m; 
+	    	while(array.length>0){ 
+	    		m=array[0]; 
+	    		arr.push(m); 
+	    		array=$.grep(array,function(n,i){ 
+	    			return n==m; 
+	    		},true); 
+	    	} 
+	    	return arr; 
+	    }
+	    function getparentobj(haveparentmid,result){
+	    	var obj;
+	    	for(var i = 0;i<result.length;i++){
+	    		if(haveparentmid == result[i].mid){
+	    			obj = result[i];
+	    		}
+	    	}
+	    	return obj;
 	    }
      </script>
 </body>
